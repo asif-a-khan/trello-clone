@@ -1,10 +1,36 @@
 'use client'
 
+import { useBoardStore } from "@/store/boardStore"
+import fetchSuggestion from "@/util/fetchSuggestion"
 import { MagnifyingGlassIcon, UserCircleIcon } from '@heroicons/react/20/solid'
 import Image from 'next/image'
+import { useEffect, useState } from "react"
 import Avatar from 'react-avatar'
 
 function Header() {
+  const [board, searchString, setSearchString] = useBoardStore(state => [
+    state.board,
+    state.searchString,
+    state.setSearchString
+  ])
+  const [loading, setLoading] = useState<boolean>(false)
+  const [suggestion, setSuggestion] = useState<string>("")
+
+  useEffect(() => {
+    if (board.columns.size === 0) return
+    setLoading(true)
+    const fetchSuggestionFunc = async () => {
+      const suggestion = await fetchSuggestion(board)
+      const gptText = `Welcome back Mr. Asif! You have ${suggestion.todo} tasks to do, ${suggestion.inprogress} currently in progress and ${suggestion.done} completed tasks!`
+      setTimeout(() => {
+        setSuggestion(gptText)
+        setLoading(false)
+      }, 1800);
+    }
+
+    fetchSuggestionFunc()
+  }, [board])
+
   return (
     <header>
       <div className="flex flex-col md:flex-row items-center p-5 bg-gray-500/10 rounded-b-2xl">
@@ -36,9 +62,25 @@ function Header() {
 
         <div className="flex items-center space-x-5 flex-1 justify-end w-full">
           {/* Searchbox */}
-          <form action="" className="flex items-center space-x-5 bg-white rounded-md p-2 shadow-md flex-1 md:flex-initial">
+          <form action="" className="
+            flex 
+            items-center 
+            space-x-5 
+            bg-white 
+            rounded-md 
+            p-2 
+            shadow-md 
+            flex-1 
+            md:flex-initial"
+          >
             <MagnifyingGlassIcon className="h-6 w-6 text-gray-400"/>
-            <input type="text" placeholder="Search" className="flex-1 outline-none p-2" />
+            <input 
+              type="text" 
+              placeholder="Search" 
+              className="flex-1 outline-none p-2" 
+              value={searchString}
+              onChange={e => setSearchString(e.target.value)}
+            />
             <button hidden type="submit">Search</button>
           </form>
 
@@ -49,9 +91,23 @@ function Header() {
 
       {/* Suggestion */}
       <div className="flex items-center justify-center px-5 md: py-5">
-        <p className="flex items-center text-sm font-light p-5 pr-5 shadow-xl rounded-xl w-fit bg-white italic max-w-3xl text-[#0055D1]">
-          <UserCircleIcon className="inline-block h-10 w-10 text-[#0055D1] mr-1" />
-          GPT is summarizing your tasks for the day......
+        <p className="
+          flex 
+          items-center 
+          text-sm 
+          font-light 
+          p-5 
+          pr-5 
+          shadow-xl 
+          rounded-xl 
+          w-fit 
+          bg-white 
+          italic 
+          max-w-3xl 
+          text-[#0055D1]"
+        >
+          <UserCircleIcon className={`inline-block h-10 w-10 text-[#0055D1] mr-1 ${loading && "animate-spin"}`} />
+          {suggestion && !loading ? suggestion : "GPT is summarizing your tasks for the day......"}
         </p>
       </div>
     </header>
