@@ -13,7 +13,7 @@ This is a trello inspired todo list created using:
 - Appwrite (Database, storage bucket)
 - Vercel (Deployment)
 
-You can demo the project at the following link: 
+You can demo the project at the following link: https://codedtrello.vercel.app/
 
 
 
